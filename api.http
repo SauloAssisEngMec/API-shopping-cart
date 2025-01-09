@@ -1,0 +1,13 @@
+GET http://localhost:3000/products
+
+###
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+    "name": "book",
+    "description": "design intensive data Application",
+    "price": 300,
+     "stock": 100,
+      "productCategory": "software book"
+}

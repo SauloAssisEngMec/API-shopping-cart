@@ -1,16 +1,26 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:latest
+  db:
+    image: mongo:latest 
     container_name: mongodb
-    ports:
-      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: quero
       MONGO_INITDB_ROOT_PASSWORD: delivery
-    volumes:
-      - mongodb_data:/data/db
+    ports:
+      - 27017:27017
+#   mongodb:
+#     image: mongo:latest  # A imagem oficial do MongoDB
+#     container_name: mongodb
+#     ports:
+#       - "27017:27017"  # Porta padrão do MongoDB
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: root  # Usuário admin
+#       MONGO_INITDB_ROOT_PASSWORD: rootpass  # Senha admin
+#       MONGO_INITDB_DATABASE: shopping-cart  # Nome do banco de dados inicial
+#     volumes:
+#       - mongodb_data:/data/db  
 
-volumes:
-  mongodb_data:
+# volumes:
+#   mongodb_data:
+#     driver: local 
