@@ -1,4 +1,4 @@
 export class CartDto {
   readonly userId: string;
-  readonly items: Array<{ productId: string; quantity: number }>;
+  items: Array<{ productId: string; quantity: number }>;
 }

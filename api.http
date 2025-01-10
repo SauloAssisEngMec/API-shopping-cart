@@ -1,13 +1,54 @@
+### Product endpoints
+
+### See al products
 GET http://localhost:3000/products
+
+
+### See one product
+
+GET http://localhost:3000/products/
+
 
 ###
 POST http://localhost:3000/products
 Content-Type: application/json
 
 {
-    "name": "book",
+    "name": "book-2",
     "description": "design intensive data Application",
     "price": 300,
      "stock": 100,
       "productCategory": "software book"
 }
+
+### SHOPPING CART ENDPOINTS
+
+### add products to cart
+
+POST http://localhost:3000/cart/1/add
+Content-Type: application/json
+
+   [
+        { "productId": "678077a18980bb4e1c999", "quantity": 5 }
+    ]
+
+
+###
+
+### see all products in cart
+
+GET http://localhost:3000/cart/1
+
+
+###
+
+### remove all especific products from cart by id
+DELETE  http://localhost:3000/cart/1/remove/678077dc8980bb4e1c784394
+
+
+### deacrease quantity products from cart
+DELETE http://localhost:3000/cart/1/decrease/678077a18980bb4e1c999?quantity=1
+
+### Purchase 
+
+

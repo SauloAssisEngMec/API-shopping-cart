@@ -36,12 +36,22 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 
 funcionalidades ( Endpoints) da API REST possui:
 
-1. Listar todos os produtos.
-2. Exibir detalhes de um produto específico.
+1. Listar todos os produtos
 
-3. Adicionar produtos ao carrinho.
-4. Remover produtos do carrinho
+2. criei uma rota pra adicionar produto somente pra fins ilustrativo, já que inicialmente o mongoose estará vazio, como conteinarizei o mongo, preferir fazer isso do que utilizar um atlas com access network 000000 rsrsr)
 
-5. Finalizar compra
+3. Exibir um produto;
 
-6. Mostrar estatística do usuario
+4. Adicionar produtos ao carrinho;
+
+- é contra intuitivo inserir mais de um tipo de produto por vez porém preferir deixar mais completo que limitado
+
+- pode ser inserir mais de n produtos de um tipo também (incremento)
+
+4. Remover um produto do carrinho ( remove a quantidade inteira do produto);
+
+5. Remover um produto do carrinho ( remove um por vez como um descremento);
+
+6. Finalizar compra;
+
+7. Mostrar estatística ao usuario.
