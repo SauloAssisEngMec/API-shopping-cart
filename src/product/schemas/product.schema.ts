@@ -10,4 +10,6 @@ export const ProductSchema = new mongoose.Schema({
   stock: Number,
 
   productCategory: String,
+
+  createdAt: { type: Date, default: Date.now },
 });

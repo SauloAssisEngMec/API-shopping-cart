@@ -1,7 +1,7 @@
 export class ProductDto {
-  readonly name: string;
-  readonly description: string;
-  readonly price: number;
-  readonly stock: number;
-  readonly productCategory: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  productCategory: string;
 }

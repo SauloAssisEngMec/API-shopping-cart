@@ -31,4 +31,6 @@ export const CartSchema = new mongoose.Schema({
   userId: String,
 
   items: Array<{ productId: string; quantity: number; createAt: Date }>(),
+
+  createdAt: { type: Date, default: Date.now },
 });

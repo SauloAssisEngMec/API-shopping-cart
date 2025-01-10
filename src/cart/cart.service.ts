@@ -1,6 +1,7 @@
-import { Model } from 'mongoose';
-import { Inject, Injectable } from '@nestjs/common';
+import { Model, Types } from 'mongoose';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Cart as CartInterface } from './interfaces/cart.interfaces';
+import { ProductService } from './../product/product.service';
 
 // interface CartItem {
 //   productId: string; // ID do produto
@@ -23,7 +24,12 @@ export class CartService {
   constructor(
     @Inject('CART_MODEL')
     private readonly cartModel: Model<CartInterface>,
+    private readonly productService: ProductService,
   ) {}
+
+  async getCart(userId: string): Promise<CartInterface> {
+    return this.cartModel.findOne({ userId }).exec();
+  }
 
   async addToCart(
     userId: string,
@@ -31,8 +37,8 @@ export class CartService {
   ) {
     for (const item of items) {
       const { productId, quantity } = item;
-      console.log(productId, quantity);
 
+      // Inputs Validation
       if (
         !productId ||
         typeof productId !== 'string' ||
@@ -43,6 +49,22 @@ export class CartService {
 
       if (typeof quantity !== 'number' || quantity <= 0) {
         throw new Error('A quantidade deve ser um número positivo');
+      }
+
+      // Check if the product exists in stock
+      if (!Types.ObjectId.isValid(productId)) {
+        throw new BadRequestException(`Invalid ID: ${productId}`);
+      }
+      const checkProductStock = await this.productService.findOne(productId);
+      console.log(checkProductStock);
+
+      if (!checkProductStock) {
+        throw new Error(`Produto com ID ${productId} não encontrado.`);
+      }
+      if (checkProductStock.stock < quantity) {
+        throw new Error(
+          `Estoque insuficiente para o produto: ${checkProductStock.name}`,
+        );
       }
     }
 
@@ -218,9 +240,5 @@ export class CartService {
     // Caso a quantidade tenha sido decrementada com sucesso e o produto ainda tenha quantidade > 0
     await cart.save(); // Salva o carrinho atualizado
     return cart;
-  }
-
-  async getCart(userId: string): Promise<CartInterface> {
-    return this.cartModel.findOne({ userId }).exec();
   }
 }

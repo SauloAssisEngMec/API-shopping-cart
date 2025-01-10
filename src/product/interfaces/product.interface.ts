@@ -1,9 +1,9 @@
 import { Document } from 'mongoose';
 
 export interface Product extends Document {
-  readonly name: string;
-  readonly description: string;
-  readonly price: number;
-  readonly stock: number;
-  readonly productCategory: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  productCategory: string;
 }

@@ -1,11 +1,11 @@
 import * as mongoose from 'mongoose';
 
-export const PurchasetSchema = new mongoose.Schema({
+export const PurchaseSchema = new mongoose.Schema({
   userId: String,
 
-  items: Array<{ productId: string; quantity: number; createAt: Date }>(),
+  items: Array<{ productId: string; quantity: number; price: number }>(),
 
   total: Number,
 
-  createdAt: Date,
+  createdAt: { type: Date, default: Date.now },
 });

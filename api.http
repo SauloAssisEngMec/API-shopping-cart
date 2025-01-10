@@ -1,6 +1,6 @@
-### Product endpoints
+### PRODUCTS ENDPOINTS
 
-### See al products
+### See all products
 GET http://localhost:3000/products
 
 
@@ -14,30 +14,30 @@ POST http://localhost:3000/products
 Content-Type: application/json
 
 {
-    "name": "book-2",
-    "description": "design intensive data Application",
+    "name": "design intensive data Application",
+    "description": "book for software design",
     "price": 300,
-     "stock": 100,
-      "productCategory": "software book"
+    "stock": 100,
+    "productCategory": "software book"
 }
 
 ### SHOPPING CART ENDPOINTS
 
 ### add products to cart
 
-POST http://localhost:3000/cart/1/add
+POST http://localhost:3000/cart/67813c177b853239eb1cebab/add
 Content-Type: application/json
 
    [
-        { "productId": "678077a18980bb4e1c999", "quantity": 5 }
+        { "productId": "678138fb7b853239eb1ceb87", "quantity": 1 },
+        { "productId": "678138f37b853239eb1ceb85", "quantity": 5 }
+       
     ]
 
 
-###
-
 ### see all products in cart
 
-GET http://localhost:3000/cart/1
+GET http://localhost:3000/cart/67813c177b853239eb1cebab
 
 
 ###
@@ -49,6 +49,12 @@ DELETE  http://localhost:3000/cart/1/remove/678077dc8980bb4e1c784394
 ### deacrease quantity products from cart
 DELETE http://localhost:3000/cart/1/decrease/678077a18980bb4e1c999?quantity=1
 
-### Purchase 
+### PURCHASE ENDPOINTS 
+
+### checkout products in cart
+POST http://localhost:3000/purchase/67813c177b853239eb1cebab/checkout
 
 
+### statistics of purchases
+
+GET http://localhost:3000/purchase/67813c177b853239eb1cebab/statistics

@@ -10,21 +10,21 @@ História do Usuário: Como usuário, desejo visualizar um produto, adicionar ao
 
 ### Observações e decisões...
 
-Na História do Usuário foi citado partes importantes como, o User deve ser Capaz de:
+Na História do Usuário foi citado partes importantes como, o usuário deve ser capaz de:
 
 - Vizualizar um produto;
 - Adicionar produtos ao carrinho
 - Finalizar a compra
 - Acessar dados estatisco sobre as compras
 
-A primeira consideração que tomei é que o usuario sera modelado implicitamente, ou seja, usando um UserID (uma vez que será necessário ser referenciado nos schemas das entidades modeladas, Carrinho, Produto etc..) ja que interpretei que o foco é apenas na Compra, Carrinho e estatisticas devido ao prazo de entrega curto.. Além disso, considerei isso tendo em vista que a modelagem explicita do user e os dados relacionados aos usuários sap geenciados separadamente em outra entidade independente com login, autenticação e autorização etc.
+A primeira consideração que tomei é que o usuario sera modelado implicitamente, ou seja, usando um UserID (uma vez que será necessário ser referenciado nos schemas das entidades modeladas, Carrinho, Produto etc..) ja que interpretei que o foco é apenas na Compra, Carrinho e estatisticas devido ao prazo de entrega curto. Além disso, considerei isso tendo em vista que a modelagem explicita do user e os dados relacionados aos usuários sao geenciados separadamente em outra entidade independente com login, autenticação e autorização etc.
 
 ### Bibliotecas e ferramentas usadas no projeto
 
 - Nestjs framework pra criar o servidor http no runtime nodejs.
 - Mongodb como banco de dados juntamente com o ODM mongoose.
 - Jest pra criar os testes automatizados
-- Swagger pra documentar a API
+- Swagger pra documentar a API, pois é importante tendo em vista que não terá interface e somente o swagger e testes pra ler a API.
 
 #### Estatistica implementadas
 
@@ -34,19 +34,19 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 - Valor médio das compra do cliente;
 - Frequência de compra.
 
-funcionalidades ( Endpoints) da API REST possui:
+#### Funcionalidades ( Endpoints) da API REST possui:
 
 1. Listar todos os produtos
 
-2. criei uma rota pra adicionar produto somente pra fins ilustrativo, já que inicialmente o mongoose estará vazio, como conteinarizei o mongo, preferir fazer isso do que utilizar um atlas com access network 000000 rsrsr)
+2. criei uma rota pra adicionar produto somente pra fins de testes práticos (vocé pode usar o api.http pra fazer requisiçoes que se encontra na raiz do projeto bastando somente instalar a extensao REST client), já que inicialmente o mongoose estará vazio, como conteinarizei o mongo, preferir fazer isso do que utilizar um atlas com access network 000000 rsrss
 
 3. Exibir um produto;
 
 4. Adicionar produtos ao carrinho;
 
-- é contra intuitivo inserir mais de um tipo de produto por vez porém preferir deixar mais completo que limitado
+- é contra intuitivo inserir mais de um tipo de produto por vez no carrinho já que geralemete o cliente entra e analisa o produto primeiro, porém preferir deixar mais completo que limitado uma vez que o cliente pode querer coprar em lote via checkbox na listagem total de produtos etc.
 
-- pode ser inserir mais de n produtos de um tipo também (incremento)
+- Pode ser inserido mais de 1 produto de um tipo também (incremento)
 
 4. Remover um produto do carrinho ( remove a quantidade inteira do produto);
 
@@ -55,3 +55,13 @@ funcionalidades ( Endpoints) da API REST possui:
 6. Finalizar compra;
 
 7. Mostrar estatística ao usuario.
+
+duvidas:
+
+- no cart preciso adicionar o produto com o preço ou é melhor buscar o preço no produtoService?
+
+- usar class-validator ?
+
+- usar outra forma de conexão com o banco de dados ?
+
+-

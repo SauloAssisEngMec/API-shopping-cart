@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 
 export interface Cart extends Document {
-  readonly userId: string;
+  userId: string;
   items: Array<{ productId: string; quantity: number }>;
 }
