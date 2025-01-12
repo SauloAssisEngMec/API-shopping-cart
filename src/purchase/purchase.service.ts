@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Purchase as PurchaseInterface } from './interfaces/purchase.interface';
+import { Purchase as PurchaseInterface } from './types/purchase.interface';
 import { Model } from 'mongoose';
 import { CartService } from './../cart/cart.service';
 import { ProductService } from './../product/product.service';

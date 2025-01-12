@@ -1,9 +1,10 @@
 import { Document } from 'mongoose';
+import { PurchaseItemType } from './purchase-item.type';
 
 export interface Purchase extends Document {
   userId: string;
 
-  items: Array<{ productId: string; quantity: number; price: number }>;
+  items: PurchaseItemType[];
 
   total: number;
 

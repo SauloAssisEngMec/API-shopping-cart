@@ -8,15 +8,29 @@ import {
   Query,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { CartItemType } from './types/cart-item.type';
+import { CartItem } from './dto/cart-item.dto';
 
 @Controller('cart')
+@ApiTags('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post(':userId/add')
+  @ApiOperation({ summary: 'Add items to the cart for a given user' })
+  @ApiParam({
+    name: 'userId',
+    description: 'ID of the user to be added',
+    type: String,
+  })
+  @ApiBody({
+    description: 'Array of cart items to be added',
+    type: [CartItem],
+  })
   async addToCart(
     @Param('userId') userId: string,
-    @Body() items: { productId: string; quantity: number }[],
+    @Body() items: CartItemType[],
   ): Promise<any> {
     return this.cartService.addToCart(userId, items);
   }

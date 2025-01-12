@@ -58,6 +58,7 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 
 duvidas:
 
+- lembrar de apagar os ocmentarios e mudar pra portugues o codigo e strings de explicaçoes
 - Na compra tem que ficar o preço fixo e no carrinho checar no banco de dados
 - Refatorar as funçoes grandes do carrinho
 - tipar alguns dados importantes e grandes
