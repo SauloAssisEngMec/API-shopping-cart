@@ -58,10 +58,7 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 
 duvidas:
 
-- no cart preciso adicionar o produto com o preço ou é melhor buscar o preço no produtoService?
-
-- usar class-validator ?
-
-- usar outra forma de conexão com o banco de dados ?
-
--
+- Na compra tem que ficar o preço fixo e no carrinho checar no banco de dados
+- Refatorar as funçoes grandes do carrinho
+- tipar alguns dados importantes e grandes
+- usar class validator nos dtos

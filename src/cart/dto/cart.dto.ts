@@ -1,4 +1,9 @@
+import { IsArray, IsString } from 'class-validator';
+import { CartItemType } from '../types/cart-item.type';
+
 export class CartDto {
+  @IsString()
   readonly userId: string;
-  items: Array<{ productId: string; quantity: number }>;
+  @IsArray()
+  items: CartItemType[];
 }

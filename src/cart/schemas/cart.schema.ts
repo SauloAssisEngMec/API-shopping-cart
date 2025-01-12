@@ -1,36 +1,26 @@
-import * as mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { Product } from './../../product/schemas/product.schema';
+import { CartItemType } from './../types/cart-item.type';
 
-// export const CartSchema = new mongoose.Schema(
-//   {
-//     userId: {
-//       type: String,
-//       required: true, // se for necessário que o userId seja obrigatório
-//     },
-//     items: [
-//       {
-//         productId: {
-//           type: String,
-//           required: true, // se for necessário que productId seja obrigatório
-//         },
-//         quantity: {
-//           type: Number,
-//           required: true, // se for necessário que quantity seja obrigatória
-//         },
-//       },
-//     ],
-//   },
-//   { timestamps: true }, // Para registrar quando o documento foi criado ou atualizado
-// );
+export type CartDocument = HydratedDocument<Cart>;
 
-// export interface Cart extends mongoose.Document {
-//   userId: string;
-//   items: { productId: string; quantity: number }[];
-// }
+@Schema({ collection: 'cart', timestamps: true })
+export class Cart {
+  @Prop({ required: true })
+  userId: string;
 
-export const CartSchema = new mongoose.Schema({
-  userId: String,
+  @Prop({
+    type: [
+      {
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: Product.name },
+        quantity: { type: Number, required: true, min: 1 },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    default: [],
+  })
+  items: CartItemType[];
+}
 
-  items: Array<{ productId: string; quantity: number; createAt: Date }>(),
-
-  createdAt: { type: Date, default: Date.now },
-});
+export const CartSchema = SchemaFactory.createForClass(Cart);

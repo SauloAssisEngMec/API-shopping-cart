@@ -1,28 +1,15 @@
 import { Model, Types } from 'mongoose';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { Cart as CartInterface } from './interfaces/cart.interfaces';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { Cart as CartInterface } from './types/cart.interfaces';
 import { ProductService } from './../product/product.service';
-
-// interface CartItem {
-//   productId: string; // ID do produto
-//   quantity: number; // Quantidade do produto
-// }
-
-// interface Cart {
-//   userId: string; // ID do usuário
-//   items: CartItem[]; // Itens no carrinho
-//   save: () => Promise<Cart>; // Método para salvar o carrinho no banco
-// }
-
-// interface AddToCartInput {
-//   productId: string;
-//   quantity: number;
-// }
+import { InjectModel } from '@nestjs/mongoose';
+import { Cart } from './schemas/cart.schema';
+import { CartItemType } from './types/cart-item.type';
 
 @Injectable()
 export class CartService {
   constructor(
-    @Inject('CART_MODEL')
+    @InjectModel(Cart.name)
     private readonly cartModel: Model<CartInterface>,
     private readonly productService: ProductService,
   ) {}
@@ -31,10 +18,7 @@ export class CartService {
     return this.cartModel.findOne({ userId }).exec();
   }
 
-  async addToCart(
-    userId: string,
-    items: { productId: string; quantity: number }[],
-  ) {
+  async addToCart(userId: string, items: CartItemType[]) {
     for (const item of items) {
       const { productId, quantity } = item;
 
@@ -74,9 +58,9 @@ export class CartService {
 
       // Tenta atualizar o item no carrinho, se não encontrar, adiciona o item
       const cart = await this.cartModel.findOneAndUpdate(
-        { userId, 'items.productId': productId }, // Procurar carrinho do usuário com o produto
+        { userId, 'items.productId': productId },
         {
-          $inc: { 'items.$.quantity': quantity }, // Incrementa a quantidade do item
+          $inc: { 'items.$.quantity': quantity },
         },
         { new: true }, // Retorna o documento atualizado
       );
@@ -98,63 +82,6 @@ export class CartService {
     return updatedCart;
   }
 
-  // async addToCart(
-  //   userId: string,
-  //   items: { productId: string; quantity: number }[],
-  // ) {
-  //   // Validar cada item recebido
-  //   for (const item of items) {
-  //     const { productId, quantity } = item;
-  //     console.log(productId, quantity);
-
-  //     if (
-  //       !productId ||
-  //       typeof productId !== 'string' ||
-  //       productId.trim().length === 0
-  //     ) {
-  //       throw new Error('Inserir ID válido');
-  //     }
-
-  //     if (typeof quantity !== 'number' || quantity <= 0) {
-  //       throw new Error('A quantidade deve ser um número positivo');
-  //     }
-  //   }
-
-  //   // Procurar o carrinho do usuário
-  //   let cart = await this.cartModel.findOne({ userId });
-  //   console.log(cart);
-
-  //   if (cart) {
-  //     // Atualizar ou adicionar itens no carrinho existente
-  //     for (const item of items) {
-  //       const { productId, quantity } = item;
-
-  //       const itemIndex = cart.items.findIndex(
-  //         (cartItem) => cartItem.productId === productId,
-  //       );
-
-  //       if (itemIndex > -1) {
-  //         // Se o produto já existe, atualize a quantidade
-  //         cart.items[itemIndex].quantity += quantity;
-  //       } else {
-  //         // Caso contrário, adicione o novo item
-  //         cart.items.push({ productId, quantity });
-  //       }
-  //     }
-  //     // Salvar as alterações no carrinho apenas uma vez
-  //     await cart.save();
-  //   } else {
-  //     // Criar novo carrinho se ainda não existir
-  //     cart = new this.cartModel({
-  //       userId,
-  //       items,
-  //     });
-  //     await cart.save(); // Salvar o novo carrinho
-  //   }
-
-  //   return cart;
-  // }
-
   async removeFromCart(
     userId: string,
     productId: string,
@@ -163,14 +90,12 @@ export class CartService {
       throw new Error('Invalid userId or productId');
     }
 
-    // Remover o item do array usando findOneAndUpdate
     const cart = await this.cartModel.findOneAndUpdate(
       { userId },
       { $pull: { items: { productId } } },
-      { new: true }, // Retorna o carrinho atualizado
+      { new: true },
     );
 
-    // Verificar se o carrinho foi encontrado
     if (!cart) {
       return `Carrinho não encontrado para o usuário especificado ${userId}.`;
     }

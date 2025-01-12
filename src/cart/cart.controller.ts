@@ -37,9 +37,7 @@ export class CartController {
   ) {
     // Verificar se a quantidade fornecida é válida
     if (quantityToDecrement <= 0) {
-      throw new Error(
-        'A quantidade a ser decrementada deve ser um número positivo.',
-      );
+      throw new Error('Is not a válid quantity');
     }
 
     // Chama o serviço que faz a lógica de decremento

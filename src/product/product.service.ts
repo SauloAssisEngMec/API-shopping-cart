@@ -1,18 +1,34 @@
-import { Inject, Injectable } from '@nestjs/common';
+//import { Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ProductDto } from './dto/product.dto';
-import { Product as ProductInterface } from './interfaces/product.interface';
+import { Product as ProductInterface } from './types/product.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Product } from './schemas/product.schema';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class ProductService {
   constructor(
-    @Inject('PRODUCT_MODEL')
-    private productModel: Model<ProductInterface>,
+    @InjectModel(Product.name)
+    private readonly productModel: Model<ProductInterface>,
   ) {}
 
   async create(productDto: ProductDto): Promise<ProductInterface> {
-    const newProduct = new this.productModel(productDto);
-    return newProduct.save();
+    //return this.productModel.create(productDto);
+    const dtoInstance = plainToInstance(ProductDto, productDto);
+    const errors = await validate(dtoInstance);
+
+    if (errors.length > 0) {
+      throw new BadRequestException('The payload is incorrect');
+    }
+
+    return this.productModel.create(productDto);
   }
 
   async findAll(): Promise<ProductInterface[]> {
@@ -20,10 +36,18 @@ export class ProductService {
   }
 
   async findOne(id: string): Promise<ProductInterface> {
-    return this.productModel.findById(id).exec();
+    const product = await this.productModel.findById(id).exec();
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    return product;
   }
 
   async delete(id: string): Promise<ProductInterface> {
-    return this.productModel.findByIdAndDelete(id).exec();
+    const product = await this.productModel.findByIdAndDelete(id).exec();
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    return product;
   }
 }

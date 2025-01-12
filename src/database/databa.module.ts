@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
-import { databaseProviders } from './database.providers';
+import { MongooseModule } from '@nestjs/mongoose';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
+
+console.log(process.env.DATABASE_URL);
 @Module({
-  providers: [...databaseProviders],
-  exports: [...databaseProviders],
+  imports: [MongooseModule.forRoot(process.env.DATABASE_URL)],
+  exports: [MongooseModule],
 })
 export class DatabaseModule {}

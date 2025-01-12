@@ -1,13 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Purchase as PurchaseInterface } from './interfaces/purchase.interface';
 import { Model } from 'mongoose';
 import { CartService } from './../cart/cart.service';
 import { ProductService } from './../product/product.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Purchase } from './schemas/purchase.schema';
 
 @Injectable()
 export class PurchaseService {
   constructor(
-    @Inject('PURCHASE_MODEL')
+    @InjectModel(Purchase.name)
     private purchaseModel: Model<PurchaseInterface>,
     private readonly cartService: CartService,
     private readonly productService: ProductService,
@@ -59,51 +61,6 @@ export class PurchaseService {
     return purchase;
   }
 
-  // async getPurchaseStatistics(userId: string): Promise<any> {
-  //   // Total de vendas para o usuário específico
-  //   const totalSales = await this.purchaseModel.aggregate([
-  //     { $match: { userId } }, // Filtra pelo userId
-  //     {
-  //       $group: {
-  //         _id: null,
-  //         totalSales: { $sum: '$total' },
-  //       },
-  //     },
-  //   ]);
-
-  //   // Quantidade total de produtos vendidos para o usuário específico
-  //   const totalProductsSold = await this.purchaseModel.aggregate([
-  //     { $match: { userId } }, // Filtra pelo userId
-  //     { $unwind: '$items' },
-  //     {
-  //       $group: {
-  //         _id: null,
-  //         totalQuantity: { $sum: '$items.quantity' },
-  //       },
-  //     },
-  //   ]);
-
-  //   // Produtos mais vendidos para o usuário específico
-  //   const topSellingProducts = await this.purchaseModel.aggregate([
-  //     { $match: { userId } }, // Filtra pelo userId
-  //     { $unwind: '$items' },
-  //     {
-  //       $group: {
-  //         _id: '$items.productId',
-  //         totalSold: { $sum: '$items.quantity' },
-  //       },
-  //     },
-  //     { $sort: { totalSold: -1 } },
-  //     { $limit: 5 }, // Limita aos 5 produtos mais vendidos
-  //   ]);
-
-  //   // Combina as estatísticas e retorna
-  //   return {
-  //     totalSales: totalSales[0]?.totalSales || 0,
-  //     totalProductsSold: totalProductsSold[0]?.totalQuantity || 0,
-  //     topSellingProducts,
-  //   };
-  // }
   async getPurchaseStatistics(userId: string): Promise<any> {
     // Total de vendas para o usuário específico
     const totalSales = await this.purchaseModel.aggregate([
