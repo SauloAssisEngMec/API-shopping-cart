@@ -25,6 +25,7 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 - Mongodb como banco de dados juntamente com o ODM mongoose.
 - Jest pra criar os testes automatizados
 - Swagger pra documentar a API, pois é importante tendo em vista que não terá interface e somente o swagger e testes pra ler a API.
+- Alem disso, apliquei HATEOAS na APi Rest de forma a tornar a API mais intuitiva e autodescobrível. Em uma API , as respostas as requisições incluem links para outras partes da API. Isso significa que o cvoce não precisa ter um conhecimento prévio completo da estrutura da API para navegar por ela.
 
 #### Estatistica implementadas
 
@@ -56,10 +57,8 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 
 7. Mostrar estatística ao usuario.
 
-duvidas:
+duvid
 
+- dockerizar
+- refatorar service checkout
 - lembrar de apagar os ocmentarios e mudar pra portugues o codigo e strings de explicaçoes
-- Na compra tem que ficar o preço fixo e no carrinho checar no banco de dados
-- Refatorar as funçoes grandes do carrinho
-- tipar alguns dados importantes e grandes
-- usar class validator nos dtos

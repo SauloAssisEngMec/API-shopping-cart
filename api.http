@@ -1,4 +1,16 @@
 ### PRODUCTS ENDPOINTS
+### create products to see 
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+    "name": "design intensive data Application 3",
+    "description": "book for software design",
+    "price": 300,
+    "stock": 100,
+    "productCategory": "software book"
+}
+
 
 ### See all products
 GET http://localhost:3000/products
@@ -6,55 +18,47 @@ GET http://localhost:3000/products
 
 ### See one product
 
-GET http://localhost:3000/products/
+GET http://localhost:3000/products/6784695134af3c406ad6acb0
 
 
-###
-POST http://localhost:3000/products
-Content-Type: application/json
-
-{
-    "name": "design intensive data Application",
-    "description": "book for software design",
-    "price": 300,
-    "stock": 100,
-    "productCategory": "software book"
-}
 
 ### SHOPPING CART ENDPOINTS
-
+@userId = 67813c177b853239eb1cebac
 ### add products to cart
 
-POST http://localhost:3000/cart/67813c177b853239eb1cebab/add
+
+
+POST http://localhost:3000/cart/{{userId}}/add
 Content-Type: application/json
 
-   [
-        { "productId": "678138fb7b853239eb1ceb87", "quantity": 1 },
-        { "productId": "678138f37b853239eb1ceb85", "quantity": 5 }
+{ 
+    "items": [
+        
+        { "productId": "6785bae67aebfc8476a9111d", "quantity": 2 }
        
     ]
+}
+   
 
 
-### see all products in cart
+### see all products in cart for userId
 
-GET http://localhost:3000/cart/67813c177b853239eb1cebab
+GET http://localhost:3000/cart/{{userId}}
 
-
-###
 
 ### remove all especific products from cart by id
-DELETE  http://localhost:3000/cart/1/remove/678077dc8980bb4e1c784394
+DELETE  http://localhost:3000/cart/{{userId}}/remove/67849464c78b56f574a70def
 
 
 ### deacrease quantity products from cart
-DELETE http://localhost:3000/cart/1/decrease/678077a18980bb4e1c999?quantity=1
+PATCH  http://localhost:3000/cart/{{userId}}/decrease/67849fa991786f447ddddeb9?quantity=1
 
 ### PURCHASE ENDPOINTS 
 
 ### checkout products in cart
-POST http://localhost:3000/purchase/67813c177b853239eb1cebab/checkout
+POST http://localhost:3000/purchase/{{userId}}/checkout
 
 
 ### statistics of purchases
 
-GET http://localhost:3000/purchase/67813c177b853239eb1cebab/statistics
+GET http://localhost:3000/purchase/{{userId}}/statistics

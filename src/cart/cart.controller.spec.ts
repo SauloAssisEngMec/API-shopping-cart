@@ -37,14 +37,17 @@ describe('CartController', () => {
   describe('addToCart', () => {
     it('should call addToCart and return result', async () => {
       const userId = '1';
-      const items = [{ productId: '123', quantity: 2 }];
-      const result = { _id: '2', userId, items };
+      const cart = { items: [{ productId: '123', quantity: 2 }] };
+      const result = { _id: '2', userId, items: cart.items };
 
       mockCartService.addToCart.mockResolvedValue(result);
 
-      const response = await controller.addToCart(userId, items);
+      const response = await controller.addToCart(userId, cart);
       expect(response).toEqual(result);
-      expect(mockCartService.addToCart).toHaveBeenCalledWith(userId, items);
+      expect(mockCartService.addToCart).toHaveBeenCalledWith(
+        userId,
+        cart.items,
+      );
       expect(mockCartService.addToCart).toHaveBeenCalledTimes(1);
     });
   });

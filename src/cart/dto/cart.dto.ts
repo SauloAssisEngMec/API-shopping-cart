@@ -1,13 +1,10 @@
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, ValidateNested } from 'class-validator';
 import { CartItemType } from '../types/cart-item.type';
 import { ApiProperty } from '@nestjs/swagger';
+import { CartItem } from './cart-item.dto';
+import { Type } from 'class-transformer';
 
 export class CartDto {
-  @IsString()
-  @ApiProperty()
-  userId: string;
-
-  @IsArray()
   @ApiProperty({
     type: 'array',
     items: {
@@ -18,5 +15,8 @@ export class CartDto {
       },
     },
   })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CartItem)
   items: CartItemType[];
 }

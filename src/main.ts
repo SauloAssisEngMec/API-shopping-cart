@@ -12,7 +12,7 @@ async function bootstrap() {
     .setVersion('0.0.1')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-management-swagger', app, documentFactory);
+  SwaggerModule.setup('', app, documentFactory);
 
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);

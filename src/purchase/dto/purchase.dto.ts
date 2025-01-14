@@ -5,10 +5,12 @@ import { ApiProperty } from '@nestjs/swagger';
 export class PurchaseDto {
   @IsString()
   @ApiProperty()
+  @ApiProperty()
   userId: string;
 
   @IsArray()
   @ApiProperty()
+  @ApiProperty({})
   items: PurchaseItemType[];
 
   @IsInt()

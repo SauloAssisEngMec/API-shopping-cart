@@ -1,114 +1,104 @@
-import { Model, Types } from 'mongoose';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Model } from 'mongoose';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Cart as CartInterface } from './types/cart.interfaces';
 import { ProductService } from './../product/product.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cart } from './schemas/cart.schema';
+import { Cart, CartDocument } from './schemas/cart.schema';
 import { CartItemType } from './types/cart-item.type';
 
 @Injectable()
 export class CartService {
   constructor(
     @InjectModel(Cart.name)
-    private readonly cartModel: Model<CartInterface>,
+    private readonly cartModel: Model<CartDocument>,
     private readonly productService: ProductService,
   ) {}
 
-  async getCart(userId: string): Promise<CartInterface> {
-    if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
-      throw new Error('ID invalid');
-    }
-    return this.cartModel.findOne({ userId }).exec();
-  }
-
-  async addToCart(userId: string, items: CartItemType[]) {
-    for (const item of items) {
-      const { productId, quantity } = item;
-
-      // Inputs Validation
-      if (
-        !productId ||
-        typeof productId !== 'string' ||
-        productId.trim().length === 0
-      ) {
-        throw new Error('Inserir ID válido');
-      }
-
-      if (typeof quantity !== 'number' || quantity <= 0) {
-        throw new Error('A quantidade deve ser um número positivo');
-      }
-
-      // Check if the product exists in stock
-      if (!Types.ObjectId.isValid(productId)) {
-        throw new BadRequestException(`Invalid ID: ${productId}`);
-      }
-      const checkProductStock = await this.productService.findOne(productId);
-      console.log(checkProductStock);
-
-      if (!checkProductStock) {
-        throw new Error(`Produto com ID ${productId} não encontrado.`);
-      }
-      if (checkProductStock.stock < quantity) {
-        throw new Error(
-          `Insufficient stock for product: ${checkProductStock.name}`,
-        );
-      }
-    }
-
-    // Para cada item, atualize ou adicione no carrinho
-    for (const item of items) {
-      const { productId, quantity } = item;
-
-      // Tenta atualizar o item no carrinho, se não encontrar, adiciona o item
-      const cart = await this.cartModel.findOneAndUpdate(
-        { userId, 'items.productId': productId },
-        {
-          $inc: { 'items.$.quantity': quantity },
-        },
-        { new: true }, // Retorna o documento atualizado
-      );
+  async getCart(userId: string): Promise<CartDocument | null> {
+    try {
+      const cart = await this.cartModel.findOne({ userId }).exec();
 
       if (!cart) {
-        // Se o carrinho não existir ou não houver o produto, cria um novo item no carrinho
-        await this.cartModel.findOneAndUpdate(
-          { userId }, // Procura pelo carrinho do usuário
-          {
-            $push: { items: { productId, quantity } }, // Adiciona novo item
-          },
-          { upsert: true, new: true }, // Cria o carrinho se não existir
-        );
+        throw new NotFoundException(`Cart is empty`);
       }
-    }
 
-    // Retorna o carrinho atualizado
-    const updatedCart = await this.cartModel.findOne({ userId }).exec();
-    return updatedCart;
+      return cart;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
-  async removeFromCart(
-    userId: string,
-    productId: string,
-  ): Promise<CartInterface> {
-    if (!userId || !productId) {
-      throw new BadRequestException('Invalid userId or productId');
+  private async getProductById(productId: string) {
+    const product = await this.productService.findOne(productId);
+    if (!product) {
+      throw new NotFoundException(`Product with ID: ${productId} not found.`);
     }
+    return product;
+  }
 
-    const cart = await this.cartModel.findOneAndUpdate(
-      { userId },
-      { $pull: { items: { productId } } },
-      { new: true },
-    );
-
-    if (!cart) {
+  private validateStockAvailability(product: any, quantity: number) {
+    if (product.stock < quantity) {
       throw new NotFoundException(
-        `Carrinho não encontrado para o usuário especificado ${userId}.`,
+        `Insufficient stock for product: ${product.name}`,
       );
     }
+  }
 
+  async addToCart(
+    userId: string,
+    items: CartItemType[],
+  ): Promise<CartDocument> {
+    try {
+      for (const item of items) {
+        const { productId, quantity } = item;
+
+        const productExist = await this.getProductById(productId);
+
+        this.validateStockAvailability(productExist, quantity);
+
+        const cart = await this.cartModel.findOneAndUpdate(
+          { userId, 'items.productId': productId },
+          {
+            $inc: { 'items.$.quantity': quantity },
+          },
+          { new: true },
+        );
+
+        if (!cart) {
+          // Se o carrinho não existir ou não houver o produto, cria um novo item no carrinho
+          await this.cartModel.findOneAndUpdate(
+            { userId },
+            {
+              $push: { items: { productId, quantity } },
+            },
+            { upsert: true, new: true }, // Cria o carrinho se não existir
+          );
+        }
+      }
+
+      const updatedCart = await this.cartModel.findOne({ userId }).exec();
+      return updatedCart;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  private async validateIfCartExistToUser(
+    userId: string,
+  ): Promise<CartDocument> {
+    const cart = await this.cartModel.findOne({ userId });
+
+    if (!cart) {
+      throw new NotFoundException(`There is no Cart yet to User ID: ${userId}`);
+    }
+
+    return cart;
+  }
+
+  private async validateIfProductStillExistInCart(
+    userId: string,
+    productId: string,
+    cart: CartDocument,
+  ): Promise<CartDocument> {
     const itemStillExists = cart.items.some(
       (item) => item.productId.toString() === productId,
     );
@@ -122,112 +112,83 @@ export class CartService {
     return cart;
   }
 
-  // async decreaseProductQuantity(
-  //   userId: string,
-  //   productId: string,
-  //   quantityToDecrement: number,
-  // ): Promise<CartInterface | string> {
-  //   if (quantityToDecrement <= 0) {
-  //     throw new Error(
-  //       'A quantidade a ser decrementada deve ser um número positivo.',
-  //     );
-  //   }
-
-  //   // Encontrar o carrinho do usuário e tentar atualizar a quantidade do item
-  //   const cart = await this.cartModel.findOneAndUpdate(
-  //     { userId, 'items.productId': productId }, // Filtro para garantir que estamos atualizando o carrinho certo
-  //     {
-  //       $inc: {
-  //         'items.$.quantity': -quantityToDecrement, // Decrementa a quantidade do item
-  //       },
-  //     },
-  //     { new: true }, // Retorna o carrinho atualizado
-  //   );
-
-  //   // Verificar se o carrinho foi encontrado
-  //   if (!cart) {
-  //     return `Produto ou Carrinho não encontrado para o usuário ${userId}.`;
-  //   }
-
-  //   // Verificar se o produto existe no carrinho
-  //   const itemIndex = cart.items.findIndex(
-  //     (item) => item.productId.toString() === productId,
-  //   );
-
-  //   if (itemIndex === -1) {
-  //     return `Produto ${productId} não encontrado no carrinho do usuário ${userId}.`;
-  //   }
-
-  //   // Verificar se a quantidade não ficou negativa
-  //   const currentQuantity = cart.items[itemIndex].quantity;
-
-  //   if (currentQuantity <= 0) {
-  //     // Se a quantidade for zero ou negativa, remover o item do carrinho
-  //     cart.items.splice(itemIndex, 1); // Remove o item do array de items
-
-  //     // Salvar as mudanças no carrinho
-  //     await cart.save();
-
-  //     // Retornar o carrinho atualizado
-  //     return cart;
-  //   }
-
-  //   // Caso a quantidade tenha sido decrementada com sucesso e o produto ainda tenha quantidade > 0
-  //   await cart.save(); // Salva o carrinho atualizado
-  //   return cart;
-  // }
-  async decreaseProductQuantity(
+  async removeFromCart(
     userId: string,
     productId: string,
-    quantityToDecrement: number,
-  ): Promise<CartInterface> {
-    if (quantityToDecrement <= 0) {
-      throw new Error(
-        'A quantidade a ser decrementada deve ser um número positivo.',
-      );
-    }
+  ): Promise<CartDocument> {
+    await this.validateIfCartExistToUser(userId);
 
-    // Encontrar o carrinho do usuário e tentar atualizar a quantidade do item
-    const cart = await this.cartModel.findOneAndUpdate(
-      { userId, 'items.productId': productId }, // Filtro para garantir que estamos atualizando o carrinho certo
-      {
-        $inc: {
-          'items.$.quantity': -quantityToDecrement, // Decrementa a quantidade do item
-        },
-      },
-      { new: true }, // Retorna o carrinho atualizado
+    // Remove o produto do carrinho
+    const updatedCart = await this.cartModel.findOneAndUpdate(
+      { userId },
+      { $pull: { items: { productId } } },
+      { new: true },
     );
 
-    // Verificar se o carrinho foi encontrado
-    if (!cart) {
-      throw new Error(`Cart was not found for user ${userId}.`);
-    }
+    // Verifica se o produto ainda está no carrinho, utilizando a variável `cart`
+    await this.validateIfProductStillExistInCart(
+      userId,
+      productId,
+      updatedCart,
+    );
 
-    // Verificar se o produto existe no carrinho
+    return updatedCart;
+  }
+
+  private validateProductExistsInUserCart(
+    cart: CartInterface,
+    productId: string,
+  ): number {
     const itemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId,
     );
 
     if (itemIndex === -1) {
-      throw new Error(`Product ${productId} was not found for user ${userId}.`);
+      throw new Error(`Product ${productId} was not found in the cart.`);
     }
 
-    // Verificar se a quantidade não ficou negativa
+    return itemIndex;
+  }
+
+  private validateAndRemoveIfQuantityIsInvalid(
+    cart: CartInterface,
+    itemIndex: number,
+  ): void {
     const currentQuantity = cart.items[itemIndex].quantity;
 
     if (currentQuantity <= 0) {
-      // Se a quantidade for zero ou negativa, remover o item do carrinho
-      cart.items.splice(itemIndex, 1); // Remove o item do array de items
-
-      // Salvar as mudanças no carrinho
-      await cart.save();
-
-      // Retornar o carrinho atualizado
-      return cart;
+      // Remove o produto se a quantidade for zero ou negativa
+      cart.items.splice(itemIndex, 1);
     }
+  }
 
-    // Caso a quantidade tenha sido decrementada com sucesso e o produto ainda tenha quantidade > 0
-    await cart.save(); // Salva o carrinho atualizado
-    return cart;
+  async decreaseProductQuantity(
+    userId: string,
+    productId: string,
+    quantityToDecrement: number,
+  ): Promise<CartDocument> {
+    try {
+      const cart = await this.validateIfCartExistToUser(userId);
+
+      const itemIndex = this.validateProductExistsInUserCart(cart, productId);
+
+      const updatedCart = await this.cartModel.findOneAndUpdate(
+        { userId, 'items.productId': productId },
+        {
+          $inc: {
+            'items.$.quantity': -quantityToDecrement,
+          },
+        },
+        { new: true },
+      );
+
+      this.validateAndRemoveIfQuantityIsInvalid(updatedCart, itemIndex);
+
+      await updatedCart.save();
+
+      return updatedCart;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
