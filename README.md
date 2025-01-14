@@ -8,6 +8,17 @@ Objetivo: Desenvolver uma API REST capaz de processar e armazenar eventos de com
 
 História do Usuário: Como usuário, desejo visualizar um produto, adicionar ao carrinho de compras e finalizar a compra. Além disso, gostaria de acessar dados estatísticos sobre as compras.
 
+### Pra roda a aplicação em diferentes casos:
+
+- Pra subir somente a API com o banco de dados use: **docker compose up -d app db**
+- Para rodar a cobertura de teste unitarios e de integração com verbose : **docker compose up db test**
+- pra testar a aplicaçoes via requisiçoes manualemnte seguir a logica abaixo:
+
+1. criar produto usando a rota, já o usuario voce precisa criar(aleatorio) um id fixo pra usar em todos teste;
+2. pegar o id do produto criado e inserir no body da requisiçção em porductId no items;
+3. agora é possivel listar produtos do cart, diminuir quantidade, remover produto, fazer compra ..;
+4. veja estatisticas após a compra pois do contrário trará informaçoes vazia ou excecoes se o cart nao foi criado ainda.
+
 ### Observações e decisões...
 
 Na História do Usuário foi citado partes importantes como, o usuário deve ser capaz de:
@@ -24,16 +35,15 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 - Nestjs framework pra criar o servidor http no runtime nodejs.
 - Mongodb como banco de dados juntamente com o ODM mongoose.
 - Jest pra criar os testes automatizados
-- Swagger pra documentar a API, pois é importante tendo em vista que não terá interface e somente o swagger e testes pra ler a API.
-- Alem disso, apliquei HATEOAS na APi Rest de forma a tornar a API mais intuitiva e autodescobrível. Em uma API , as respostas as requisições incluem links para outras partes da API. Isso significa que o cvoce não precisa ter um conhecimento prévio completo da estrutura da API para navegar por ela.
+- Swagger pra documentar a API, pois é importante tendo em vista que não terá interface e somente o swagger e testes pra ler a API. que ta na porta padrao localhost "/"
+- Alternativa pra fazer requisiçoes além do jest inlcui o o aquivo na pasta raiz api.http que ja possui os endpoints que com a extensção do vscode (cleint Rest) voce pode fazer requisiçoes com no insomia/SWagger
 
 #### Estatistica implementadas
 
-- Quantidade de produtos comprados pelo cliente;
-- Qual a data das ultimas compras;
-- Preferências de compra do cliente: categoria;
-- Valor médio das compra do cliente;
-- Frequência de compra.
+- lista de todos produtos vendidos
+- total de produtos vendidos
+- total vendido em preço;
+- top 5 produtos vendidos;
 
 #### Funcionalidades ( Endpoints) da API REST possui:
 
@@ -45,7 +55,7 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 
 4. Adicionar produtos ao carrinho;
 
-- é contra intuitivo inserir mais de um tipo de produto por vez no carrinho já que geralemete o cliente entra e analisa o produto primeiro, porém preferir deixar mais completo que limitado uma vez que o cliente pode querer coprar em lote via checkbox na listagem total de produtos etc.
+- é contra intuitivo inserir mais de um tipo de produto por vez no carrinho já que geralemete o cliente entra e analisa o produto, porém preferir deixar mais completo que limitado uma vez que o cliente pode querer coprar em lote via checkbox na listagem total de produtos etc.
 
 - Pode ser inserido mais de 1 produto de um tipo também (incremento)
 
@@ -56,9 +66,3 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 6. Finalizar compra;
 
 7. Mostrar estatística ao usuario.
-
-duvid
-
-- dockerizar
-- refatorar service checkout
-- lembrar de apagar os ocmentarios e mudar pra portugues o codigo e strings de explicaçoes

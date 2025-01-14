@@ -34,7 +34,7 @@ Content-Type: application/json
 { 
     "items": [
         
-        { "productId": "6785bae67aebfc8476a9111d", "quantity": 2 }
+        { "productId": "678610452930aa6cd01ed86a", "quantity": 2 }
        
     ]
 }
@@ -47,11 +47,11 @@ GET http://localhost:3000/cart/{{userId}}
 
 
 ### remove all especific products from cart by id
-DELETE  http://localhost:3000/cart/{{userId}}/remove/67849464c78b56f574a70def
+DELETE  http://localhost:3000/cart/{{userId}}/remove/6785f6660ac8051433a91aed
 
 
 ### deacrease quantity products from cart
-PATCH  http://localhost:3000/cart/{{userId}}/decrease/67849fa991786f447ddddeb9?quantity=1
+PATCH  http://localhost:3000/cart/{{userId}}/decrease/6785f6660ac8051433a91aed?quantity=1
 
 ### PURCHASE ENDPOINTS 
 

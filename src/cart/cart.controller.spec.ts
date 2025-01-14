@@ -6,7 +6,6 @@ describe('CartController', () => {
   let controller: CartController;
   let cartService: CartService;
 
-  // Mock para o CartService
   const mockCartService = {
     addToCart: jest.fn(),
     removeFromCart: jest.fn(),
@@ -20,7 +19,7 @@ describe('CartController', () => {
       providers: [
         {
           provide: CartService,
-          useValue: mockCartService, // Mocka o CartService
+          useValue: mockCartService,
         },
       ],
     }).compile();

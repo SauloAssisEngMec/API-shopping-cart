@@ -20,7 +20,6 @@ export class ProductController {
   })
   @ApiResponse({ status: 400, description: 'Invalid  Body inputs.' })
   async createProduct(@Body() newProduct: ProductDto) {
-    console.log('Novo produto adicionado', newProduct);
     return this.productService.create(newProduct);
   }
 
@@ -34,7 +33,7 @@ export class ProductController {
   @ApiResponse({ status: 400, description: 'Invalid request ' })
   async getAllProducts() {
     const productList = await this.productService.findAll();
-    console.log('Lista de produtos', productList);
+
     return productList;
   }
   @Get(':id')

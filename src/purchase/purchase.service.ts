@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-//import { Purchase as  } from './types/purchase.interface';
+
 import { Model } from 'mongoose';
 import { CartService } from './../cart/cart.service';
 import { ProductService } from './../product/product.service';
@@ -15,53 +15,6 @@ export class PurchaseService {
     private readonly productService: ProductService,
   ) {}
 
-  // async checkout(userId: string): Promise<PurchaseDocument> {
-  //   try {
-  //     const cart = await this.cartService.getCart(userId);
-
-  //     if (!cart || cart.items.length === 0) {
-  //       throw new Error('Cart is empty');
-  //     }
-
-  //     const items = await Promise.all(
-  //       cart.items.map(async (item) => {
-  //         const product = await this.productService.findOne(item.productId);
-  //         if (!product) {
-  //           throw new Error(`Product with ID ${item.productId} not found`);
-  //         }
-  //         if (product.stock < item.quantity) {
-  //           throw new Error(`Insufficient stock for product: ${product.name}`);
-  //         }
-
-  //         // Reduce stock
-  //         product.stock -= item.quantity;
-  //         await product.save();
-
-  //         return {
-  //           productId: product._id,
-  //           quantity: item.quantity,
-  //           price: product.price,
-  //         };
-  //       }),
-  //     );
-
-  //     const total = items.reduce(
-  //       (sum, item) => sum + item.price * item.quantity,
-  //       0,
-  //     );
-
-  //     const purchase = new this.purchaseModel({ userId, items, total });
-  //     await purchase.save();
-
-  //     for (const item of cart.items) {
-  //       await this.cartService.removeFromCart(userId, item.productId);
-  //     }
-
-  //     return purchase;
-  //   } catch (error) {
-  //     throw new Error(error instanceof Error ? error.message : 'Unknown error');
-  //   }
-  // }
   async checkout(userId: string): Promise<PurchaseDocument> {
     try {
       const cart = await this.cartService.getCart(userId);

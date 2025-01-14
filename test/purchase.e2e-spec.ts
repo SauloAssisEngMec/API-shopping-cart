@@ -12,24 +12,22 @@ import {
   PurchaseSchema,
   Purchase,
 } from './../src/purchase/schemas/purchase.schema';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
+
+jest.setTimeout(30000);
 
 describe('Integration test to Purchase flow', () => {
   let module: TestingModule;
   let productService: ProductService;
   let cartService: CartService;
   let purchaseService: PurchaseService;
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    //jest.setTimeout(20000);
-    mongod = await MongoMemoryServer.create();
-    const uri = mongod.getUri();
-
     module = await Test.createTestingModule({
       imports: [
-        MongooseModule.forRoot(uri),
+        MongooseModule.forRoot(
+          'mongodb://quero:delivery@db:27017/shopping-cart?authSource=admin',
+        ),
         MongooseModule.forFeature([
           { name: Product.name, schema: ProductSchema },
           { name: Cart.name, schema: CartSchema },
@@ -46,14 +44,18 @@ describe('Integration test to Purchase flow', () => {
 
   afterAll(async () => {
     try {
-      await module.close(); // Fecha o módulo de teste Nest.js
+      console.log('Closing module...');
+      await module.close();
+
+      console.log('Waiting for database cleanup...');
+
       if (mongoose.connection.readyState !== 0) {
+        console.log('Dropping database...');
         await mongoose.connection.dropDatabase();
         await mongoose.disconnect();
       }
-      if (mongod) {
-        await mongod.stop();
-      }
+
+      console.log('Test completed and cleanup finished.');
     } catch (error) {
       console.error('Error in afterAll:', error);
     }
@@ -69,20 +71,16 @@ describe('Integration test to Purchase flow', () => {
         productCategory: 'testCategory',
       };
 
-      // Cria o produto
       const product = await productService.create(productData);
 
-      // Verifica se o produto foi criado corretamente
-      expect(product).toBeDefined(); // Verifica se o produto foi retornado
+      expect(product).toBeDefined();
       expect(product.name).toBe(productData.name);
       expect(product.price).toBe(productData.price);
       expect(product.stock).toBe(productData.stock);
       expect(product.description).toBe(productData.description);
       expect(product.productCategory).toBe(productData.productCategory);
 
-      // Verifica o ID do produto
-      expect(product._id).toBeDefined(); // O ID gerado deve ser um ObjectId válido
-      //expect(Types.ObjectId.isValid(product._id)).toBe(true); // Verifica se o ID
+      expect(product._id).toBeDefined();
     });
 
     it('should add items to the cart', async () => {
@@ -94,15 +92,12 @@ describe('Integration test to Purchase flow', () => {
         productCategory: 'test',
       });
 
-      // Gerando um ID de usuário válido usando Types.ObjectId()
-      const userId = new Types.ObjectId();
+      const userId = new mongoose.Types.ObjectId();
 
-      // Adicionando o produto ao carrinho
       const cart = await cartService.addToCart(userId.toString(), [
         { productId: product._id.toString(), quantity: 2 },
       ]);
 
-      // Verificando se o produto foi adicionado corretamente ao carrinho
       expect(cart.items.length).toBe(1);
       expect(cart.items[0].quantity).toBe(2);
     });
@@ -122,17 +117,14 @@ describe('Integration test to Purchase flow', () => {
 
       const purchase = await purchaseService.checkout('user123');
 
-      // Verify purchase record
       expect(purchase.items.length).toBe(1);
       expect(purchase.total).toBe(60);
 
-      // Verify stock update
       const updatedProduct = await productService.findOne(
         product._id.toString(),
       );
       expect(updatedProduct.stock).toBe(7);
 
-      // Verify cart is cleared
       const cart = await cartService.getCart('user123');
       expect(cart.items.length).toBe(0);
     });

@@ -1,26 +1,42 @@
 version: '3.8'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - DATABASE_URL=mongodb://quero:delivery@db:27017/shopping-cart?authSource=admin
+    depends_on:
+      - db
+
   db:
-    image: mongo:latest 
+    image: mongo:latest
     container_name: mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: quero
       MONGO_INITDB_ROOT_PASSWORD: delivery
     ports:
-      - 27017:27017
-#   mongodb:
-#     image: mongo:latest  # A imagem oficial do MongoDB
-#     container_name: mongodb
-#     ports:
-#       - "27017:27017"  # Porta padrão do MongoDB
-#     environment:
-#       MONGO_INITDB_ROOT_USERNAME: root  # Usuário admin
-#       MONGO_INITDB_ROOT_PASSWORD: rootpass  # Senha admin
-#       MONGO_INITDB_DATABASE: shopping-cart  # Nome do banco de dados inicial
-#     volumes:
-#       - mongodb_data:/data/db  
+      - "27017:27017"
+    
 
-# volumes:
-#   mongodb_data:
-#     driver: local 
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest_test
+    command: /bin/bash -c "npm install && npm run test -- --verbose && npm run test:e2e -- --verbose"
+    environment:
+      - DATABASE_URL=mongodb://quero:delivery@db:27017/shopping-cart-test?authSource=admin
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/node_modules
+ 

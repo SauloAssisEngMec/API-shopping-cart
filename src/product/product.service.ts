@@ -20,7 +20,6 @@ export class ProductService {
   ) {}
 
   async create(productDto: ProductDto): Promise<ProductInterface> {
-    //return this.productModel.create(productDto);
     const dtoInstance = plainToInstance(ProductDto, productDto);
     const errors = await validate(dtoInstance);
 

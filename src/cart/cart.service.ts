@@ -65,13 +65,12 @@ export class CartService {
         );
 
         if (!cart) {
-          // Se o carrinho não existir ou não houver o produto, cria um novo item no carrinho
           await this.cartModel.findOneAndUpdate(
             { userId },
             {
               $push: { items: { productId, quantity } },
             },
-            { upsert: true, new: true }, // Cria o carrinho se não existir
+            { upsert: true, new: true },
           );
         }
       }
@@ -105,7 +104,7 @@ export class CartService {
 
     if (itemStillExists) {
       throw new Error(
-        `Produto ${productId} não foi removido do carrinho do usuário ${userId}.`,
+        `Product ${productId} was not remove fom user cart ${userId}.`,
       );
     }
 
@@ -118,14 +117,12 @@ export class CartService {
   ): Promise<CartDocument> {
     await this.validateIfCartExistToUser(userId);
 
-    // Remove o produto do carrinho
     const updatedCart = await this.cartModel.findOneAndUpdate(
       { userId },
       { $pull: { items: { productId } } },
       { new: true },
     );
 
-    // Verifica se o produto ainda está no carrinho, utilizando a variável `cart`
     await this.validateIfProductStillExistInCart(
       userId,
       productId,
@@ -139,6 +136,9 @@ export class CartService {
     cart: CartInterface,
     productId: string,
   ): number {
+    if (!cart || !Array.isArray(cart.items)) {
+      throw new Error('There is no Cart yet to User ID: ${userId}');
+    }
     const itemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId,
     );

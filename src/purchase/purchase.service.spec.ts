@@ -66,12 +66,10 @@ describe('PurchaseService', () => {
 
   describe('checkout', () => {
     it('should successfully process checkout', async () => {
-      // Mock the create method to return a mock instance of Purchase with a save method
       mockPurchaseModel.create.mockResolvedValue(mockPurchase);
 
       const result = await service.checkout('1234');
 
-      // Ensure that the necessary services were called
       expect(mockCartService.getCart).toHaveBeenCalledWith('1234');
       expect(mockProductService.findOne).toHaveBeenCalledWith('12345');
       expect(mockPurchaseModel.create).toHaveBeenCalledWith({
@@ -84,7 +82,6 @@ describe('PurchaseService', () => {
         '12345',
       );
 
-      // Verify that the result includes the mocked ID
       expect(result).toEqual({
         userId: '1234',
         items: [{ productId: '12345', quantity: 2, price: 100 }],
