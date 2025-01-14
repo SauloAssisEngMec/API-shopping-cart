@@ -6,6 +6,9 @@ import { ProductService } from './../product/product.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Purchase, PurchaseDocument } from './schemas/purchase.schema';
 
+import { CartItem } from 'src/cart/dto/cart-item.dto';
+import { CartDocument } from 'src/cart/schemas/cart.schema';
+
 @Injectable()
 export class PurchaseService {
   constructor(
@@ -17,55 +20,91 @@ export class PurchaseService {
 
   async checkout(userId: string): Promise<PurchaseDocument> {
     try {
-      const cart = await this.cartService.getCart(userId);
+      const cart = await this.getCartWithValidation(userId);
 
-      if (!cart || cart.items.length === 0) {
-        throw new NotFoundException('Cart is empty');
-      }
+      const items = await this.processCartItems(cart.items);
 
-      const items = await Promise.all(
-        cart.items.map(async (item) => {
-          const product = await this.productService.findOne(item.productId);
-          if (!product) {
-            throw new Error(`Product with ID ${item.productId} not found`);
-          }
-          if (product.stock < item.quantity) {
-            throw new Error(`Insufficient stock for product: ${product.name}`);
-          }
+      const total = this.calculateTotal(items);
 
-          product.stock -= item.quantity;
-          await product.save();
+      const purchase = await this.createPurchase(userId, items, total);
 
-          return {
-            productId: product._id,
-            quantity: item.quantity,
-            price: product.price,
-          };
-        }),
-      );
-
-      const total = items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-
-      const purchase = await this.purchaseModel.create({
-        userId,
-        items,
-        total,
-      });
-
-      for (const item of cart.items) {
-        await this.cartService.removeFromCart(userId, item.productId);
-      }
+      await this.clearCart(cart.items, userId);
 
       return purchase;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new Error('Cart is empty');
-      }
-      throw new Error(error instanceof Error ? error.message : 'Unknown error');
+      this.handleCheckoutError(error);
     }
+  }
+
+  private async getCartWithValidation(userId: string): Promise<CartDocument> {
+    const cart = await this.cartService.getCart(userId);
+
+    if (!cart || cart.items.length === 0) {
+      throw new NotFoundException('Cart is empty');
+    }
+
+    return cart;
+  }
+
+  private async processCartItems(cartItems: CartItem[]): Promise<any> {
+    return Promise.all(
+      cartItems.map(async (item) => {
+        const product = await this.validateAndUpdateProductStock(item);
+        return {
+          productId: product._id,
+          quantity: item.quantity,
+          price: product.price,
+        };
+      }),
+    );
+  }
+
+  private async validateAndUpdateProductStock(item: CartItem): Promise<any> {
+    const product = await this.productService.findOne(item.productId);
+
+    if (!product) {
+      throw new Error(`Product with ID ${item.productId} not found`);
+    }
+    if (product.stock < item.quantity) {
+      throw new Error(`Insufficient stock for product: ${product.name}`);
+    }
+
+    product.stock -= item.quantity;
+    await product.save();
+
+    return product;
+  }
+
+  private calculateTotal(items: any): number {
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }
+
+  private async createPurchase(
+    userId: string,
+    items: CartItem,
+    total: number,
+  ): Promise<PurchaseDocument> {
+    return this.purchaseModel.create({
+      userId,
+      items,
+      total,
+    });
+  }
+
+  private async clearCart(
+    cartItems: CartItem[],
+    userId: string,
+  ): Promise<void> {
+    for (const item of cartItems) {
+      await this.cartService.removeFromCart(userId, item.productId);
+    }
+  }
+
+  private handleCheckoutError(error: unknown): never {
+    if (error instanceof NotFoundException) {
+      throw new Error('Cart is empty');
+    }
+    throw new Error(error instanceof Error ? error.message : 'Unknown error');
   }
 
   async getPurchaseStatistics(userId: string): Promise<any> {

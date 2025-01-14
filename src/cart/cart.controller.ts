@@ -18,7 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { CartItem } from './dto/cart-item.dto';
+import { CartDtoSwagger } from './dto/cart-item.dto';
 import { CartDto } from './dto/cart.dto';
 
 import { CartType } from './types/cart.type';
@@ -30,7 +30,7 @@ export class CartController {
 
   @Get(':userId')
   @ApiOperation({
-    summary: 'Get shopping cart for a given user',
+    summary: 'List Products in shopping cart for a given user',
   })
   @ApiParam({
     name: 'userId',
@@ -59,7 +59,7 @@ export class CartController {
   })
   @ApiBody({
     description: 'Array of cart items to be added',
-    type: [CartItem],
+    type: CartDtoSwagger,
   })
   @ApiResponse({
     status: 201,
@@ -110,17 +110,18 @@ export class CartController {
   })
   @ApiParam({
     name: 'userId',
-    description: 'ID of the user to be added',
+    description: 'ID of the user',
     type: String,
   })
   @ApiParam({
     name: 'productId',
-    description: 'Product ID to be added',
+    description: 'Product ID to be decreased',
     type: String,
   })
   @ApiQuery({
+    name: 'quantity',
     description: 'Quantity to be decrease',
-    type: String,
+    type: Number,
   })
   @ApiResponse({
     status: 200,

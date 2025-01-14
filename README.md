@@ -11,8 +11,10 @@ História do Usuário: Como usuário, desejo visualizar um produto, adicionar ao
 ### Pra roda a aplicação em diferentes casos:
 
 - Pra subir somente a API com o banco de dados use: **docker compose up -d app db**
-- Para rodar a cobertura de teste unitarios e de integração com verbose : **docker compose up db test**
-- pra testar a aplicaçoes via requisiçoes manualemnte seguir a logica abaixo:
+- Para rodar localmente a API lembre-se de subir somente o banco de dados do docker-compose: **docker compose up -d db**
+- Para rodar a cobertura de teste unitarios e de integração com verbose no docker: **docker compose up -d db && docker compose run test**
+- Para rodar os testes localmente use **npm run test:all** para roda os testes de integração e unidade com verbose (o de integração depende do mongoose do docker, portanto:\*docker compose up -d db\*\*)
+- Pra testar a aplicaçoes via requisiçoes manualemnte seguir a logica abaixo:
 
 1. criar produto usando a rota, já o usuario voce precisa criar(aleatorio) um id fixo pra usar em todos teste;
 2. pegar o id do produto criado e inserir no body da requisiçção em porductId no items;
@@ -36,7 +38,7 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 - Mongodb como banco de dados juntamente com o ODM mongoose.
 - Jest pra criar os testes automatizados
 - Swagger pra documentar a API, pois é importante tendo em vista que não terá interface e somente o swagger e testes pra ler a API. que ta na porta padrao localhost "/"
-- Alternativa pra fazer requisiçoes além do jest inlcui o o aquivo na pasta raiz api.http que ja possui os endpoints que com a extensção do vscode (cleint Rest) voce pode fazer requisiçoes com no insomia/SWagger
+- Alternativa pra fazer requisiçoes além do Swagger, eu inlcui um aquivo na pasta raiz "api.http"" que ja possui os endpoints para mandar requisição(necessita extensção do vscode {cleint Rest})
 
 #### Estatistica implementadas
 
@@ -57,7 +59,7 @@ A primeira consideração que tomei é que o usuario sera modelado implicitament
 
 - é contra intuitivo inserir mais de um tipo de produto por vez no carrinho já que geralemete o cliente entra e analisa o produto, porém preferir deixar mais completo que limitado uma vez que o cliente pode querer coprar em lote via checkbox na listagem total de produtos etc.
 
-- Pode ser inserido mais de 1 produto de um tipo também (incremento)
+- Pode ser inserido mais de 1 produto de um tipo também, ao mandar "n" vezes a mesma requisição, por exemplo. (incremento)
 
 4. Remover um produto do carrinho ( remove a quantidade inteira do produto);
 

@@ -13,6 +13,9 @@ import {
   Purchase,
 } from './../src/purchase/schemas/purchase.schema';
 import mongoose from 'mongoose';
+import * as dotenv from 'dotenv';
+
+dotenv.config({});
 
 jest.setTimeout(30000);
 
@@ -25,9 +28,7 @@ describe('Integration test to Purchase flow', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
-        MongooseModule.forRoot(
-          'mongodb://quero:delivery@db:27017/shopping-cart?authSource=admin',
-        ),
+        MongooseModule.forRoot(process.env.DATABASE_URL),
         MongooseModule.forFeature([
           { name: Product.name, schema: ProductSchema },
           { name: Cart.name, schema: CartSchema },
@@ -44,18 +45,12 @@ describe('Integration test to Purchase flow', () => {
 
   afterAll(async () => {
     try {
-      console.log('Closing module...');
       await module.close();
 
-      console.log('Waiting for database cleanup...');
-
       if (mongoose.connection.readyState !== 0) {
-        console.log('Dropping database...');
         await mongoose.connection.dropDatabase();
         await mongoose.disconnect();
       }
-
-      console.log('Test completed and cleanup finished.');
     } catch (error) {
       console.error('Error in afterAll:', error);
     }

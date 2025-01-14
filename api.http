@@ -18,7 +18,7 @@ GET http://localhost:3000/products
 
 ### See one product
 
-GET http://localhost:3000/products/6784695134af3c406ad6acb0
+GET http://localhost:3000/products/6786858aa6b4a621238e037b
 
 
 
@@ -34,7 +34,7 @@ Content-Type: application/json
 { 
     "items": [
         
-        { "productId": "678610452930aa6cd01ed86a", "quantity": 2 }
+        { "productId": "6786858aa6b4a621238e037b", "quantity": 2 }
        
     ]
 }
@@ -47,11 +47,11 @@ GET http://localhost:3000/cart/{{userId}}
 
 
 ### remove all especific products from cart by id
-DELETE  http://localhost:3000/cart/{{userId}}/remove/6785f6660ac8051433a91aed
+DELETE  http://localhost:3000/cart/{{userId}}/remove/6786858aa6b4a621238e037b
 
 
 ### deacrease quantity products from cart
-PATCH  http://localhost:3000/cart/{{userId}}/decrease/6785f6660ac8051433a91aed?quantity=1
+PATCH  http://localhost:3000/cart/{{userId}}/decrease/6786858aa6b4a621238e037b?quantity=1
 
 ### PURCHASE ENDPOINTS 
 
