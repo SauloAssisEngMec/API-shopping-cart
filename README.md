@@ -1,4 +1,4 @@
-# Desafio Técnico quero delivery
+# Shopping Cart API
 
 Candidato: Saulo assis silva
 
